@@ -49,12 +49,17 @@ public class SignUpActivity extends AppCompatActivity {
                 // Sent account data to Firebase and check if it completes successfully
                 if(signUpPasswordText.equals(signUpPassConfirmText)) {
                     // Create new user with email and password. Give error if not successful.
-                    if (mAuth.createUserWithEmailAndPassword(signUpEmailText, signUpPassConfirmText).isSuccessful()) {
-                        Toast.makeText(SignUpActivity.this, "Sign Up Successful", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                    } else {
-                        Toast.makeText(SignUpActivity.this, "Invalid Email or Password", Toast.LENGTH_SHORT).show();
-                    }
+                    mAuth.createUserWithEmailAndPassword(signUpEmailText, signUpPassConfirmText).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if(task.isSuccessful()){
+                                Toast.makeText(SignUpActivity.this, "Sign Up Successful", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                            } else {
+                                Toast.makeText(SignUpActivity.this, "Invalid Email or Password", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 } else{
                     // Send password error
                     Toast.makeText(SignUpActivity.this, "Passwords Do Not Match", Toast.LENGTH_LONG).show();
