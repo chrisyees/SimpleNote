@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">SimpleNote</string>
+    <string name="pornhub_premium">PornHub Premium</string>
+    <string name="name">Name</string>
+    <string name="gender">gender</string>
+    <string name="age">age</string>
+    <string name="todo">TODO</string>
 </resources>
