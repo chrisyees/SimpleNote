@@ -30,7 +30,7 @@ public class SignUpActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // get all the EditTexts on sign up
+        // get all the EditText in SignUp Activity
         signUpEmail = findViewById(R.id.signUpEmail);
         signUpPassword = findViewById(R.id.signUpPassword);
         signUpPassConfirm = findViewById(R.id.confirmPass);
@@ -41,7 +41,7 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(),"Signing Up", Toast.LENGTH_SHORT).show();
                 // Get user inputs
-                final String signUpEmailText = signUpEmail.getText().toString();
+                String signUpEmailText = signUpEmail.getText().toString();
                 String signUpPasswordText = signUpPassword.getText().toString();
                 String signUpPassConfirmText = signUpPassConfirm.getText().toString();
 
