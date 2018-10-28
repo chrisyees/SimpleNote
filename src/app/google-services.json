@@ -31,6 +31,14 @@
           }
         },
         {
+          "client_id": "888043189648-2ngbmm6mud5a5p9p1fbn4dgqihjsnh0m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cs180.simplenote.simplenoteapp",
+            "certificate_hash": "16702d83cde7f21be9c7c2b6a9da96aa7cec24c2"
+          }
+        },
+        {
           "client_id": "888043189648-g5bfnl7tbk9gd3q1h88e88pndhmgqjlm.apps.googleusercontent.com",
           "client_type": 3
         }
