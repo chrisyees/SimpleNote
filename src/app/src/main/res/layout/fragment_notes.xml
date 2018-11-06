@@ -23,14 +23,6 @@
         android:background="@drawable/plain_text_background"
         android:text="Add" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Notes Screen"
-        android:textSize="30sp"
-        android:layout_centerInParent="true"
-        tools:ignore="HardcodedText" />
-
     <EditText
         android:id="@+id/add_note"
         android:layout_width="298dp"
