@@ -1,53 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/note_list"
-        android:layout_width="342dp"
-        android:layout_height="369dp"
-        android:layout_alignStart="@+id/note_list"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="139dp" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/note_display"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
 
     <Button
-        android:id="@+id/add_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="147dp"
-        android:layout_marginTop="80dp"
-        android:background="@drawable/plain_text_background"
-        android:text="Add" />
-
-    <EditText
-        android:id="@+id/add_note"
-        android:layout_width="298dp"
-        android:layout_height="62dp"
-        android:layout_alignParentTop="true"
+        android:id="@+id/create_note_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="39dp"
-        android:background="@drawable/plain_text_background"
-        android:ems="10"
-        android:hint="Add a Note..."
-        android:inputType="textPersonName" />
-
-    <ScrollView
-        android:id="@+id/note_list"
-        android:layout_width="344dp"
-        android:layout_height="415dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
-
-        <LinearLayout
-            android:id="@+id/note_list_linear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+        android:layout_marginEnd="54dp"
+        android:layout_marginBottom="57dp"
+        android:background="@drawable/button_style"
+        android:text="+"
+        android:textColor="#ffffff"
+        android:textSize="24sp" />
 
 </RelativeLayout>

@@ -29,13 +29,6 @@
             android:padding="10dp"
             tools:background="@android:color/transparent" />
 
-        <View
-            android:id="@+id/view"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:alpha=".3"
-            android:background="@android:color/black" />
-
         <EditText
             android:id="@+id/noteBody"
             android:layout_width="match_parent"
@@ -49,6 +42,8 @@
             android:padding="10dp" />
 
         <Button
+            android:background="@drawable/button_style"
+            android:textColor="#ffffff"
             android:id="@+id/createNoteButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
