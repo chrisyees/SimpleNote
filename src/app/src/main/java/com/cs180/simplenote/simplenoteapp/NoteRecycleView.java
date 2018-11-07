@@ -7,20 +7,20 @@ import android.widget.TextView;
 
 public class NoteRecycleView extends RecyclerView.ViewHolder {
     View mView;
-    TextView textTitle, textDate;
+    TextView textTitle, textBody;
 
     public NoteRecycleView(@NonNull View itemView) {
         super(itemView);
         mView = itemView;
         textTitle = mView.findViewById(R.id.note_title);
-        textDate = mView.findViewById(R.id.note_date);
+        textBody = mView.findViewById(R.id.note_body);
     }
 
     public void setTextTitle(String textTitle) {
         this.textTitle.setText(textTitle);
     }
 
-    public void setTextDate(String textDate) {
-        this.textDate.setText(textDate);
+    public void setTextBody(String textBody) {
+        this.textBody.setText(textBody);
     }
 }
