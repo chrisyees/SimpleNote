@@ -13,23 +13,24 @@
 
         <TextView
             android:id="@+id/note_title"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Note Title"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/note_body"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:maxLines="7"
+            android:maxLines="5"
             android:text="Note Body" />
     </LinearLayout>
 
