@@ -25,6 +25,7 @@
         android:ems="10"
         android:hint="Username"
         android:inputType="textPersonName"
+        android:textCursorDrawable="@null"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -40,6 +41,7 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="textPassword"
+        android:textCursorDrawable="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline2" />

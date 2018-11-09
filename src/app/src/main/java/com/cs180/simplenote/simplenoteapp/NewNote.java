@@ -5,7 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,6 +50,13 @@ public class NewNote extends AppCompatActivity {
         createButton = findViewById(R.id.createNoteButton);
         noteTitle = findViewById(R.id.noteTitle);
         noteBody = findViewById(R.id.noteBody);
+
+        Toolbar newNoteToolbar = findViewById(R.id.newNoteToolbar);
+        newNoteToolbar.setElevation(0);
+        setSupportActionBar(newNoteToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         checkExisting();
 
@@ -114,5 +125,35 @@ public class NewNote extends AppCompatActivity {
             //Toast.makeText(NewNote.this, "THIS IS A NEW NOTE", Toast.LENGTH_SHORT).show();
             noteExists = false;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.newnote_menu, menu);
+        if(noteExists)
+            menu.getItem(0).setVisible(true);
+        else
+            menu.getItem(0).setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_delete_note:
+                notesDatabase.child(noteID).removeValue();
+                //startActivity(new Intent(NewNote.this, MainActivity.class));
+                Toast.makeText(NewNote.this, "Note Deleted", Toast.LENGTH_LONG).show();
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }
