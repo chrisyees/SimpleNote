@@ -50,14 +50,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="1dp"
         android:layout_marginBottom="76dp"
         android:background="@drawable/button_style"
         android:text="Sign In"
         android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/sign_up_button"
-        app:layout_constraintHorizontal_bias="0.648"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_password"
         app:layout_constraintVertical_bias="0.487" />
@@ -66,15 +66,19 @@
         android:id="@+id/sign_up_button"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="76dp"
         android:background="@drawable/button_style"
         android:text="Sign Up"
         android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_password" />
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toBottomOf="@+id/login_password"
+        app:layout_constraintVertical_bias="0.485" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -89,6 +93,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/document_icon" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
 
 
 </android.support.constraint.ConstraintLayout>

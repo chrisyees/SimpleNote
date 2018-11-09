@@ -15,20 +15,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText signUpEmail;
     private EditText signUpPassword;
     private EditText signUpPassConfirm;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // Initialize Firebase Auth
+        // Initialize Firebase Auth and Database
         mAuth = FirebaseAuth.getInstance();
+        //mDatabase = FirebaseDatabase.getInstance().getReference("User");
 
         // get all the EditText in SignUp Activity
         signUpEmail = findViewById(R.id.signUpEmail);
