@@ -11,8 +11,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,18 +29,22 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.sql.DatabaseMetaData;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class NewNote extends AppCompatActivity {
     private EditText noteTitle, noteBody;
+    private Spinner labelSelect;
     private Button createButton;
     private FirebaseAuth mAuth;
     private DatabaseReference notesDatabase;
     private String noteID;
     private boolean noteExists;
+    private String selectedLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +57,7 @@ public class NewNote extends AppCompatActivity {
         createButton = findViewById(R.id.createNoteButton);
         noteTitle = findViewById(R.id.noteTitle);
         noteBody = findViewById(R.id.noteBody);
+        labelSelect = findViewById(R.id.label_select);
 
         Toolbar newNoteToolbar = findViewById(R.id.newNoteToolbar);
         newNoteToolbar.setElevation(0);
@@ -59,6 +67,23 @@ public class NewNote extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         checkExisting();
+
+        //Label Spinner Selection
+        List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        labelSelect.setAdapter(adapter);
+        labelSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()  {
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
+                {
+                selectedLabel =  parent.getItemAtPosition(pos).toString();
+                }
+
+                public void onNothingSelected(AdapterView<?> parent)
+                {
+                    //nothing
+                }
+        });
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +106,7 @@ public class NewNote extends AppCompatActivity {
         Map updateMap = new HashMap<String, String>();
         updateMap.put("title", title);
         updateMap.put("text", body);
-        updateMap.put("labelName", "");
+        updateMap.put("labelName", selectedLabel);
         updateMap.put("date", date);
 
         if (noteExists) {

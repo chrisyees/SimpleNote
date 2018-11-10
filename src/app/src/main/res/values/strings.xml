@@ -6,4 +6,13 @@
     <string name="todo">TODO</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string-array name="Labels">
+        <item>"Home"</item>
+        <item>"Work"</item>
+        <item>"Cooking"</item>
+        <item>"School"</item>
+        <item>"To Do"</item>
+        <item>"Other"</item>
+        <item>" "</item>
+    </string-array>
 </resources>
