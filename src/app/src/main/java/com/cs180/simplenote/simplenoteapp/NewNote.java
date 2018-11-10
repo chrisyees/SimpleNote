@@ -143,9 +143,8 @@ public class NewNote extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_delete_note:
                 notesDatabase.child(noteID).removeValue();
-                //startActivity(new Intent(NewNote.this, MainActivity.class));
                 Toast.makeText(NewNote.this, "Note Deleted", Toast.LENGTH_LONG).show();
-                finish();
+                startActivity(new Intent(NewNote.this, MainActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }
