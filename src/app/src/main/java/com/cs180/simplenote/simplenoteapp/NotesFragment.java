@@ -27,6 +27,7 @@ public class NotesFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private FirebaseRecyclerAdapter adapter;
+    private String displayLabel;
 
     @Nullable
     @Override
@@ -41,6 +42,11 @@ public class NotesFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
 
+
+        //TODO :  Have value passed  into there w/o returning null
+        //displayLabel = getArguments().getString("label");
+
+
         FirebaseRecyclerOptions<Notes> options =
         new FirebaseRecyclerOptions.Builder<Notes>()
         .setQuery(mDatabase, Notes.class)
@@ -50,18 +56,20 @@ public class NotesFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Notes, NoteRecycleView>(options) {
             @Override
             protected void onBindViewHolder(@NonNull NoteRecycleView holder, int position, @NonNull Notes model) {
-                holder.setTextTitle(model.getTitle());
-                holder.setTextBody(model.getText());
-                final String cNoteID = getRef(position).getKey();
+              //  if(model.getLabelName() == displayLabel) {
+                    holder.setTextTitle(model.getTitle());
+                    holder.setTextBody(model.getText());
+                    final String cNoteID = getRef(position).getKey();
 
-                holder.mView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getActivity(), NewNote.class);
-                        intent.putExtra("cNoteID", cNoteID);
-                        startActivity(intent);
-                    }
-                });
+                    holder.mView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getActivity(), NewNote.class);
+                            intent.putExtra("cNoteID", cNoteID);
+                            startActivity(intent);
+                        }
+                    });
+             //   }
             }
 
             @NonNull

@@ -8,15 +8,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class LabelsFragment extends Fragment {
 
     private EditText addLabel;
+    private Spinner label_bar;
+    private String selectedLabel;
 
     @Nullable
     @Override
@@ -25,6 +33,7 @@ public class LabelsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_labels, container, false);
 
         addLabel = view.findViewById(R.id.add_label);
+        label_bar = view.findViewById(R.id.label_bar);
         return view;
     }
 
@@ -33,6 +42,32 @@ public class LabelsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button add_label_button = (Button) view.findViewById(R.id.add_label_button);
+
+        //Label Spinner Selection
+        List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        label_bar.setAdapter(adapter);
+        label_bar.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()  {
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
+            {
+                selectedLabel =  parent.getItemAtPosition(pos).toString();
+                Log.d("Labels",selectedLabel);
+
+                NotesFragment nFrag = new NotesFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("label", selectedLabel);
+                nFrag.setArguments(bundle);
+
+                getFragmentManager().beginTransaction().add(R.id.container, nFrag).commit();
+            }
+
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+                //nothing
+            }
+        });
 
         add_label_button.setOnClickListener(new View.OnClickListener() {
             @Override
