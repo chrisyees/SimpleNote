@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ public class NotesFragment extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private FirebaseRecyclerAdapter adapter;
+
+    Bundle labelArgs;
     private String displayLabel;
 
     @Nullable
@@ -42,10 +45,17 @@ public class NotesFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
 
+        labelArgs = getArguments();
+        if(labelArgs == null)
+        {
+            displayLabel = "All"; //avoid null error
+        }
+        else
+        {
+            displayLabel = getArguments().getString("label"); //get item passed in by label fragment
+        }
 
-        //TODO :  Have value passed  into there w/o returning null
-        //displayLabel = getArguments().getString("label");
-
+        Log.d("OnCreate", displayLabel);
 
         FirebaseRecyclerOptions<Notes> options =
         new FirebaseRecyclerOptions.Builder<Notes>()
@@ -56,9 +66,16 @@ public class NotesFragment extends Fragment {
         adapter = new FirebaseRecyclerAdapter<Notes, NoteRecycleView>(options) {
             @Override
             protected void onBindViewHolder(@NonNull NoteRecycleView holder, int position, @NonNull Notes model) {
-              //  if(model.getLabelName() == displayLabel) {
+                Log.d("FirebaseLabel", "Note Label: " + model.getLabelName());
+                Log.d("FirebaseLabel", "Display Label: " + displayLabel);
+                //TODO: Print out correct notes based on displayLabel value
+                //if(model.getLabelName() == displayLabel || displayLabel == "All") {
                     holder.setTextTitle(model.getTitle());
                     holder.setTextBody(model.getText());
+
+                    Log.d("FirebaseNoteInfo", model.getTitle());
+                    Log.d("FirebaseNoteInfo", model.getText());
+
                     final String cNoteID = getRef(position).getKey();
 
                     holder.mView.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +86,7 @@ public class NotesFragment extends Fragment {
                             startActivity(intent);
                         }
                     });
-             //   }
+                //}
             }
 
             @NonNull

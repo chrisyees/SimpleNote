@@ -1,5 +1,6 @@
 package com.cs180.simplenote.simplenoteapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,12 +29,12 @@ public class LabelsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_labels, container, false);
 
         addLabel = view.findViewById(R.id.add_label);
-        label_bar = view.findViewById(R.id.label_bar);
+
         return view;
     }
 
@@ -42,6 +43,9 @@ public class LabelsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button add_label_button = (Button) view.findViewById(R.id.add_label_button);
+        Button sort_button = (Button) view.findViewById(R.id.sort_button);
+
+        label_bar = view.findViewById(R.id.label_bar);
 
         //Label Spinner Selection
         List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels));
@@ -51,16 +55,7 @@ public class LabelsFragment extends Fragment {
         label_bar.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()  {
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
             {
-                selectedLabel =  parent.getItemAtPosition(pos).toString();
-                Log.d("Labels",selectedLabel);
-
-                NotesFragment nFrag = new NotesFragment();
-
-                Bundle bundle = new Bundle();
-                bundle.putString("label", selectedLabel);
-                nFrag.setArguments(bundle);
-
-                getFragmentManager().beginTransaction().add(R.id.container, nFrag).commit();
+                selectedLabel =  parent.getItemAtPosition(pos).toString(); //store the value
             }
 
             public void onNothingSelected(AdapterView<?> parent)
@@ -81,6 +76,24 @@ public class LabelsFragment extends Fragment {
                 myRef.push().setValue(noteText); //push value to database
 
                 Log.d("Firebase", "Ending write to label.");
+            }
+        });
+
+        sort_button.setOnClickListener(new View.OnClickListener() { //go to notes fragment and display
+            @Override
+            public void onClick(View v) {
+                Log.d("Labels", selectedLabel);
+                NotesFragment nFrag = new NotesFragment();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("label", selectedLabel); //store the item in the spinner to send over
+                nFrag.setArguments(bundle);
+
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, nFrag)
+                        .addToBackStack(null)
+                        .commit();
+                //startActivity(new Intent(getActivity(), NewNote.class));
             }
         });
     }

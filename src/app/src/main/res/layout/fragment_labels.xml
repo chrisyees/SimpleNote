@@ -43,4 +43,14 @@
         android:layout_alignParentEnd="true"
         android:text="Add" />
 
+    <Button
+        android:id="@+id/sort_button"
+        android:layout_width="236dp"
+        android:layout_height="34dp"
+        android:layout_alignEnd="@+id/add_label"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="102dp"
+        android:layout_marginEnd="2dp"
+        android:text="Display" />
+
 </RelativeLayout>
