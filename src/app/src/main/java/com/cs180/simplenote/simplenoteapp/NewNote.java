@@ -170,6 +170,8 @@ public class NewNote extends AppCompatActivity {
                 notesDatabase.child(noteID).removeValue();
                 Toast.makeText(NewNote.this, "Note Deleted", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(NewNote.this, MainActivity.class));
+            case R.id.menu_color_note:
+
             default:
                 return super.onOptionsItemSelected(item);
         }
