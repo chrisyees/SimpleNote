@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +13,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -22,12 +27,15 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class NotesFragment extends Fragment {
 
-    private Button addNoteButton;
+    private FloatingActionButton addButton;
+    private FloatingActionButton addNoteButton;
+    private FloatingActionButton addListButton;
     private RecyclerView notesDisplay;
     private GridLayoutManager gridLayoutManager;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private FirebaseRecyclerAdapter adapter;
+    private boolean isFabOpen = false;
 
     Bundle labelArgs;
     private String displayLabel;
@@ -41,7 +49,9 @@ public class NotesFragment extends Fragment {
         notesDisplay = view.findViewById(R.id.note_display);
         notesDisplay.setHasFixedSize(true);
         notesDisplay.setLayoutManager(gridLayoutManager);
+        addButton = view.findViewById(R.id.create_button);
         addNoteButton = view.findViewById(R.id.create_note_button);
+        addListButton = view.findViewById(R.id.create_list_button);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
 
@@ -81,6 +91,7 @@ public class NotesFragment extends Fragment {
                     holder.mView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            CloseFabMenu();
                             Intent intent = new Intent(getActivity(), NewNote.class);
                             intent.putExtra("cNoteID", cNoteID);
                             startActivity(intent);
@@ -104,11 +115,43 @@ public class NotesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isFabOpen)
+                    ShowFabMenu();
+                else
+                    CloseFabMenu();
+            }
+        });
+
         addNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                CloseFabMenu();
                 startActivity(new Intent(getActivity(), NewNote.class));
             }
         });
+
+        addListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+        //Toast.makeText(getContext(), "WEEEEEEEE", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void ShowFabMenu(){
+        isFabOpen = true;
+        addNoteButton.show();
+        addListButton.show();
+        //addNoteButton.startAnimation(new RotateAnimation(0,90));
+    }
+
+    private  void CloseFabMenu(){
+        isFabOpen = false;
+        addNoteButton.hide();
+        addListButton.hide();
     }
 }
