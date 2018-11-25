@@ -6,17 +6,19 @@ public class Notes {
     private String text;
     private String date;
     private String labelName;
+    private String photoUri;
 
 
     public Notes(){
 
     }
 
-    public Notes(String title, String text, String date, String labelName) {
+    public Notes(String title, String text, String date, String labelName, String photoUri) {
         this.title = title;
         this.text = text;
         this.date = date;
         this.labelName = labelName;
+        this.photoUri = photoUri;
     }
 
     public String getTitle() {
@@ -35,6 +37,8 @@ public class Notes {
         return labelName;
     }
 
+    public String getPhotoUri() { return photoUri; }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -46,6 +50,8 @@ public class Notes {
     public void setDate(String date) {
         this.date = date;
     }
+
+    public void setPhotoUri(String photoUri) { this.photoUri = photoUri; }
 
     public void setLabelName(String labelName) {
         this.labelName = labelName;

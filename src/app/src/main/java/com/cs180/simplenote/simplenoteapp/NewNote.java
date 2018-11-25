@@ -1,12 +1,17 @@
 package com.cs180.simplenote.simplenoteapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,6 +20,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -27,6 +34,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -40,11 +49,16 @@ public class NewNote extends AppCompatActivity {
     private EditText noteTitle, noteBody;
     private Spinner labelSelect;
     private Button createButton;
+    private ImageButton addPhotoButton;
     private FirebaseAuth mAuth;
     private DatabaseReference notesDatabase;
     private String noteID;
     private boolean noteExists;
     private String selectedLabel;
+    private String encodedPhoto;
+    private ImageView photoView;
+
+    private final int PICK_IMAGE_REQUEST = 71;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +72,8 @@ public class NewNote extends AppCompatActivity {
         noteTitle = findViewById(R.id.noteTitle);
         noteBody = findViewById(R.id.noteBody);
         labelSelect = findViewById(R.id.label_select);
+        addPhotoButton = findViewById(R.id.photoButton);
+        photoView = findViewById(R.id.imgView);
 
         Toolbar newNoteToolbar = findViewById(R.id.newNoteToolbar);
         newNoteToolbar.setElevation(0);
@@ -65,6 +81,8 @@ public class NewNote extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        encodedPhoto = "empty";
 
         checkExisting();
 
@@ -85,6 +103,13 @@ public class NewNote extends AppCompatActivity {
                 }
         });
 
+        addPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectPhoto();
+            }
+        });
+
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,22 +117,24 @@ public class NewNote extends AppCompatActivity {
                 String body = noteBody.getText().toString();
                 String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
                 if(!title.isEmpty() && !body.isEmpty()) {
-                    createNote(title, body, date);
+                    createNote(title, body, date, encodedPhoto);
                     startActivity(new Intent(NewNote.this, MainActivity.class));
                 } else {
                     Snackbar.make(v, "Fill empty fields", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
+
     }
 
-    private void createNote(String title, String body, String date) {
+    private void createNote(String title, String body, String date, String encodedPhoto) {
 
         Map updateMap = new HashMap<String, String>();
         updateMap.put("title", title);
         updateMap.put("text", body);
         updateMap.put("labelName", selectedLabel);
         updateMap.put("date", date);
+        updateMap.put("photoUri", encodedPhoto);
 
         if (noteExists) {
             notesDatabase.child(noteID).updateChildren(updateMap);
@@ -137,6 +164,13 @@ public class NewNote extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
+                    String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
+                    if(temp != "empty")
+                    {
+                        byte[] decodedByteArray = Base64.decode(temp, Base64.DEFAULT);
+                        Bitmap photoBitmap =  BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+                        photoView.setImageBitmap(photoBitmap);
+                    }
                 }
 
                 @Override
@@ -150,6 +184,41 @@ public class NewNote extends AppCompatActivity {
             //Toast.makeText(NewNote.this, "THIS IS A NEW NOTE", Toast.LENGTH_SHORT).show();
             noteExists = false;
         }
+    }
+
+    protected void selectPhoto(){
+        Intent intent  = new Intent();
+        intent.setType("image/*");
+        intent.setAction(intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null )
+        {
+            Uri photoData = data.getData();
+            Bitmap imageBitmap = null;
+            try {
+                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), photoData);
+                photoView.setImageBitmap(imageBitmap);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            if(imageBitmap != null)
+            {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                encodedPhoto = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            }
+        }
+
+
     }
 
     @Override
