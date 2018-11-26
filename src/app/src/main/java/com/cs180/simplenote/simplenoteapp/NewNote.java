@@ -56,6 +56,9 @@ public class NewNote extends AppCompatActivity {
     private String selectedLabel;
     private String encodedPhoto;
     private ImageView photoView;
+    private ArrayAdapter<String> adapter;
+
+    private String previousLabel; //for spinner when editing note
 
     private final int PICK_IMAGE_REQUEST = 71;
 
@@ -86,7 +89,7 @@ public class NewNote extends AppCompatActivity {
 
         //Label Spinner Selection
         List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels));
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Labels);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Labels);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         labelSelect.setAdapter(adapter);
         labelSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()  {
@@ -165,6 +168,8 @@ public class NewNote extends AppCompatActivity {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
                     String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
+                    int spinnerPosition = adapter.getPosition(dataSnapshot.child(noteID).child("labelName").getValue().toString());
+                    labelSelect.setSelection(spinnerPosition);
                     if (!temp.equals("empty")) {
                         photoView.setVisibility(View.VISIBLE);
                         byte[] decodedByteArray = Base64.decode(temp, Base64.DEFAULT);

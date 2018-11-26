@@ -79,7 +79,20 @@ public class NotesFragment extends Fragment {
                 Log.d("FirebaseLabel", "Note Label: " + model.getLabelName());
                 Log.d("FirebaseLabel", "Display Label: " + displayLabel);
                 //TODO: Print out correct notes based on displayLabel value
-                //if(model.getLabelName() == displayLabel || displayLabel == "All") {
+                if(model.getLabelName().equals(displayLabel) || displayLabel.equals("All")) {
+                    Log.d("FirebaseLabel", "Note Label in IF: " + model.getLabelName());
+                    Log.d("FirebaseLabel", "Display Label in IF: " + displayLabel);
+                    holder.mView.setVisibility(View.VISIBLE);
+                    holder.textTitle.setVisibility(View.VISIBLE);
+                    holder.textBody.setVisibility(View.VISIBLE);
+                    holder.noteImg.setVisibility(View.VISIBLE);
+                }
+                else {
+                    holder.mView.setVisibility(View.GONE);
+                    holder.textTitle.setVisibility(View.GONE);
+                    holder.textBody.setVisibility(View.GONE);
+                    holder.noteImg.setVisibility(View.GONE);
+                }
                     holder.setTextTitle(model.getTitle());
                     holder.setTextBody(model.getText());
                     holder.setNoteImg(model.getPhotoUri());
@@ -93,8 +106,10 @@ public class NotesFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                             CloseFabMenu();
+                            Log.d("OnClick", "editing notes");
                             Intent intent = new Intent(getActivity(), NewNote.class);
                             intent.putExtra("cNoteID", cNoteID);
+                            intent.putExtra("previousLabel", displayLabel);
                             startActivity(intent);
                         }
                     });

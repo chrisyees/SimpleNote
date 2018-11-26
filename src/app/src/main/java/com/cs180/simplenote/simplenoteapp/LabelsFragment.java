@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -26,6 +27,8 @@ public class LabelsFragment extends Fragment {
     private EditText addLabel;
     private Spinner label_bar;
     private String selectedLabel;
+    private FirebaseAuth mAuth;
+    private DatabaseReference notesDatabase;
 
     @Nullable
     @Override
@@ -34,6 +37,9 @@ public class LabelsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_labels, container, false);
 
         addLabel = view.findViewById(R.id.add_label);
+
+        mAuth = FirebaseAuth.getInstance();
+        notesDatabase = FirebaseDatabase.getInstance().getReference().child("Labels").child(mAuth.getCurrentUser().getUid());
 
         return view;
     }
