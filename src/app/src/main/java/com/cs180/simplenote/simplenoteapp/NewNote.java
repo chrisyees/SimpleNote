@@ -49,7 +49,6 @@ public class NewNote extends AppCompatActivity {
     private EditText noteTitle, noteBody;
     private Spinner labelSelect;
     private Button createButton;
-    private ImageButton addPhotoButton;
     private FirebaseAuth mAuth;
     private DatabaseReference notesDatabase;
     private String noteID;
@@ -72,7 +71,6 @@ public class NewNote extends AppCompatActivity {
         noteTitle = findViewById(R.id.noteTitle);
         noteBody = findViewById(R.id.noteBody);
         labelSelect = findViewById(R.id.label_select);
-        addPhotoButton = findViewById(R.id.photoButton);
         photoView = findViewById(R.id.imgView);
 
         Toolbar newNoteToolbar = findViewById(R.id.newNoteToolbar);
@@ -103,10 +101,12 @@ public class NewNote extends AppCompatActivity {
                 }
         });
 
-        addPhotoButton.setOnClickListener(new View.OnClickListener() {
+
+        photoView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                selectPhoto();
+            public boolean onLongClick(View v) {
+                deletePhoto();
+                return false;
             }
         });
 
@@ -118,7 +118,6 @@ public class NewNote extends AppCompatActivity {
                 String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
                 if(!title.isEmpty() && !body.isEmpty()) {
                     createNote(title, body, date, encodedPhoto);
-                    startActivity(new Intent(NewNote.this, MainActivity.class));
                 } else {
                     Snackbar.make(v, "Fill empty fields", Snackbar.LENGTH_SHORT).show();
                 }
@@ -145,6 +144,7 @@ public class NewNote extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()) {
                         Toast.makeText(NewNote.this, "Note Saved", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(NewNote.this, MainActivity.class));
                     } else {
                         Toast.makeText(NewNote.this, "Note Failed To Save", Toast.LENGTH_SHORT).show();
                     }
@@ -165,11 +165,14 @@ public class NewNote extends AppCompatActivity {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
                     String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
-                    if (!temp.equals("empty"))
-                    {
+                    if (!temp.equals("empty")) {
+                        photoView.setVisibility(View.VISIBLE);
                         byte[] decodedByteArray = Base64.decode(temp, Base64.DEFAULT);
                         Bitmap photoBitmap =  BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
                         photoView.setImageBitmap(photoBitmap);
+                    }
+                    else {
+                        photoView.setVisibility(View.GONE);
                     }
                 }
 
@@ -193,6 +196,12 @@ public class NewNote extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
+    protected void deletePhoto(){
+        if(noteExists)
+            notesDatabase.child(noteID).child("photoUri").setValue("empty");
+        photoView.setVisibility(View.GONE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -204,6 +213,7 @@ public class NewNote extends AppCompatActivity {
             try {
                 imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), photoData);
                 photoView.setImageBitmap(imageBitmap);
+                photoView.setVisibility(View.VISIBLE);
             }
             catch (IOException e)
             {
@@ -226,9 +236,9 @@ public class NewNote extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.newnote_menu, menu);
         if(noteExists)
-            menu.getItem(0).setVisible(true);
+            menu.getItem(2).setVisible(true);
         else
-            menu.getItem(0).setVisible(false);
+            menu.getItem(2).setVisible(false);
         return true;
     }
 
@@ -241,6 +251,8 @@ public class NewNote extends AppCompatActivity {
                 startActivity(new Intent(NewNote.this, MainActivity.class));
             case R.id.menu_color_note:
 
+            case R.id.menu_insert_photo:
+                selectPhoto();
             default:
                 return super.onOptionsItemSelected(item);
         }

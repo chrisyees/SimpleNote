@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,6 @@ public class NotesFragment extends Fragment {
     private FloatingActionButton addNoteButton;
     private FloatingActionButton addListButton;
     private RecyclerView notesDisplay;
-    private GridLayoutManager gridLayoutManager;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private FirebaseRecyclerAdapter adapter;
@@ -45,15 +45,15 @@ public class NotesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_notes, container, false);
-        gridLayoutManager = new GridLayoutManager(getActivity(), 2, LinearLayoutManager.VERTICAL, false);
         notesDisplay = view.findViewById(R.id.note_display);
         notesDisplay.setHasFixedSize(true);
-        notesDisplay.setLayoutManager(gridLayoutManager);
+        notesDisplay.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
         addButton = view.findViewById(R.id.create_button);
         addNoteButton = view.findViewById(R.id.create_note_button);
         addListButton = view.findViewById(R.id.create_list_button);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
+
 
         labelArgs = getArguments();
         if(labelArgs == null)
@@ -82,6 +82,7 @@ public class NotesFragment extends Fragment {
                 //if(model.getLabelName() == displayLabel || displayLabel == "All") {
                     holder.setTextTitle(model.getTitle());
                     holder.setTextBody(model.getText());
+                    holder.setNoteImg(model.getPhotoUri());
 
                     Log.d("FirebaseNoteInfo", model.getTitle());
                     Log.d("FirebaseNoteInfo", model.getText());
