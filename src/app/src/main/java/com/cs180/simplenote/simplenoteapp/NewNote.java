@@ -165,7 +165,7 @@ public class NewNote extends AppCompatActivity {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
                     String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
-                    if(temp != "empty")
+                    if (!temp.equals("empty"))
                     {
                         byte[] decodedByteArray = Base64.decode(temp, Base64.DEFAULT);
                         Bitmap photoBitmap =  BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
