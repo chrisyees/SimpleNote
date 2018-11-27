@@ -171,6 +171,7 @@ public class NewNote extends AppCompatActivity {
                     int spinnerPosition = adapter.getPosition(dataSnapshot.child(noteID).child("labelName").getValue().toString());
                     labelSelect.setSelection(spinnerPosition);
                     if (!temp.equals("empty")) {
+                        encodedPhoto = temp;
                         photoView.setVisibility(View.VISIBLE);
                         byte[] decodedByteArray = Base64.decode(temp, Base64.DEFAULT);
                         Bitmap photoBitmap =  BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
