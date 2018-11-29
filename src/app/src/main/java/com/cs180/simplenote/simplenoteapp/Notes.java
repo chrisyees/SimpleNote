@@ -7,18 +7,20 @@ public class Notes {
     private String date;
     private String labelName;
     private String photoUri;
+    private String backgroundColor;
 
 
     public Notes(){
 
     }
 
-    public Notes(String title, String text, String date, String labelName, String photoUri) {
+    public Notes(String title, String text, String date, String labelName, String photoUri, String backgroundColor) {
         this.title = title;
         this.text = text;
         this.date = date;
         this.labelName = labelName;
         this.photoUri = photoUri;
+        this.backgroundColor = backgroundColor;
     }
 
     public String getTitle() {
@@ -39,6 +41,8 @@ public class Notes {
 
     public String getPhotoUri() { return photoUri; }
 
+    public String getBackgroundColor() { return backgroundColor; }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -56,4 +60,6 @@ public class Notes {
     public void setLabelName(String labelName) {
         this.labelName = labelName;
     }
+
+    public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
 }

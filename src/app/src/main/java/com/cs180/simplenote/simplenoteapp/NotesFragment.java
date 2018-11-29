@@ -82,20 +82,15 @@ public class NotesFragment extends Fragment {
                 if(model.getLabelName().equals(displayLabel) || displayLabel.equals("All")) {
                     Log.d("FirebaseLabel", "Note Label in IF: " + model.getLabelName());
                     Log.d("FirebaseLabel", "Display Label in IF: " + displayLabel);
-                    holder.mView.setVisibility(View.VISIBLE);
-                    holder.textTitle.setVisibility(View.VISIBLE);
-                    holder.textBody.setVisibility(View.VISIBLE);
-                    holder.noteImg.setVisibility(View.VISIBLE);
+                    holder.setVisibility(View.VISIBLE);
                 }
                 else {
-                    holder.mView.setVisibility(View.GONE);
-                    holder.textTitle.setVisibility(View.GONE);
-                    holder.textBody.setVisibility(View.GONE);
-                    holder.noteImg.setVisibility(View.GONE);
+                    holder.setVisibility(View.GONE);
                 }
                     holder.setTextTitle(model.getTitle());
                     holder.setTextBody(model.getText());
                     holder.setNoteImg(model.getPhotoUri());
+                    holder.setColor(model.getBackgroundColor());
 
                     Log.d("FirebaseNoteInfo", model.getTitle());
                     Log.d("FirebaseNoteInfo", model.getText());

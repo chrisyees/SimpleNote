@@ -3,9 +3,11 @@ package com.cs180.simplenote.simplenoteapp;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -49,14 +52,17 @@ public class NewNote extends AppCompatActivity {
     private EditText noteTitle, noteBody;
     private Spinner labelSelect;
     private Button createButton;
+    private ConstraintLayout newNoteBackground;
     private FirebaseAuth mAuth;
     private DatabaseReference notesDatabase;
     private String noteID;
     private boolean noteExists;
     private String selectedLabel;
     private String encodedPhoto;
+    private String backgroundColor;
     private ImageView photoView;
     private ArrayAdapter<String> adapter;
+
 
     private String previousLabel; //for spinner when editing note
 
@@ -75,6 +81,7 @@ public class NewNote extends AppCompatActivity {
         noteBody = findViewById(R.id.noteBody);
         labelSelect = findViewById(R.id.label_select);
         photoView = findViewById(R.id.imgView);
+        newNoteBackground = findViewById(R.id.new_note_layout);
 
         Toolbar newNoteToolbar = findViewById(R.id.newNoteToolbar);
         newNoteToolbar.setElevation(0);
@@ -84,6 +91,7 @@ public class NewNote extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         encodedPhoto = "empty";
+        backgroundColor = "#ffffff";
 
         checkExisting();
 
@@ -120,7 +128,7 @@ public class NewNote extends AppCompatActivity {
                 String body = noteBody.getText().toString();
                 String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
                 if(!title.isEmpty() && !body.isEmpty()) {
-                    createNote(title, body, date, encodedPhoto);
+                    createNote(title, body, date, encodedPhoto, backgroundColor);
                 } else {
                     Snackbar.make(v, "Fill empty fields", Snackbar.LENGTH_SHORT).show();
                 }
@@ -129,17 +137,28 @@ public class NewNote extends AppCompatActivity {
 
     }
 
-    private void createNote(String title, String body, String date, String encodedPhoto) {
-
+    private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor) {
+        Toast.makeText(NewNote.this, "Saving Note...", Toast.LENGTH_LONG).show();
         Map updateMap = new HashMap<String, String>();
         updateMap.put("title", title);
         updateMap.put("text", body);
         updateMap.put("labelName", selectedLabel);
         updateMap.put("date", date);
         updateMap.put("photoUri", encodedPhoto);
+        updateMap.put("backgroundColor", backgroundColor);
 
         if (noteExists) {
-            notesDatabase.child(noteID).updateChildren(updateMap);
+            notesDatabase.child(noteID).updateChildren(updateMap).addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if(task.isSuccessful()) {
+                        Toast.makeText(NewNote.this, "Note Saved", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(NewNote.this, MainActivity.class));
+                    } else {
+                        Toast.makeText(NewNote.this, "Note Failed To Save", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         } else {
             DatabaseReference newNoteRef = notesDatabase.push();
             newNoteRef.setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -167,6 +186,7 @@ public class NewNote extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
+                    newNoteBackground.setBackgroundColor(Color.parseColor(dataSnapshot.child(noteID).child("backgroundColor").getValue().toString()));
                     String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
                     int spinnerPosition = adapter.getPosition(dataSnapshot.child(noteID).child("labelName").getValue().toString());
                     labelSelect.setSelection(spinnerPosition);
@@ -251,17 +271,40 @@ public class NewNote extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_insert_photo:
+                selectPhoto();
+                break;
             case R.id.menu_delete_note:
                 notesDatabase.child(noteID).removeValue();
                 Toast.makeText(NewNote.this, "Note Deleted", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(NewNote.this, MainActivity.class));
-            case R.id.menu_color_note:
-
-            case R.id.menu_insert_photo:
-                selectPhoto();
+                break;
+            case R.id.menu_color_note_yellow:
+                backgroundColor = "#fdfd96";
+                break;
+            case R.id.menu_color_note_red:
+                backgroundColor = "#ff9aa2";
+                break;
+            case R.id.menu_color_note_orange:
+                backgroundColor = "#ffdac1";
+                break;
+            case R.id.menu_color_note_blue:
+                backgroundColor = "#aec6cf";
+                break;
+            case R.id.menu_color_note_purple:
+                backgroundColor = "#c7ceea";
+                break;
+            case R.id.menu_color_note_green:
+                backgroundColor = "#b5ead7";
+                break;
+            case R.id.menu_color_note_white:
+                backgroundColor = "#ffffff";
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
+        newNoteBackground.setBackgroundColor(Color.parseColor(backgroundColor));
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

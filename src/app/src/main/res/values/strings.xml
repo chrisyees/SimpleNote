@@ -16,4 +16,10 @@
         <item>"Other"</item>
         <item>" "</item>
     </string-array>
+    <string name="pastelBlue">#aec6cf</string>
+    <string name="pastelGreen">#b5ead7</string>
+    <string name="pastelOrange">#ffdac1</string>
+    <string name="pastelRed">#ff9aa2</string>
+    <string name="pastelPurple">#c7ceea</string>
+    <string name="pastelGrey">#f5f5f5</string>
 </resources>

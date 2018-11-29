@@ -4,4 +4,11 @@
     <color name="colorPrimaryDark">#0589e1</color>
     <color name="colorAccent">#014b96</color>
     <color name="textHighlight">#bcbcbc</color>
+    <color name="pastelYellow">#fdfd96</color>
+    <color name="pastelBlue">#aec6cf</color>
+    <color name="pastelGreen">#b5ead7</color>
+    <color name="pastelOrange">#ffdac1</color>
+    <color name="pastelRed">#ff9aa2</color>
+    <color name="pastelPurple">#c7ceea</color>
+    <color name="pastelGrey">#f5f5f5</color>
 </resources>
