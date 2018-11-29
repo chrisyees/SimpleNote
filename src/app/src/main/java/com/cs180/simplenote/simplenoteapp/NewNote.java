@@ -150,25 +150,10 @@ public class NewNote extends AppCompatActivity {
                 return false;
             }
         });
-
-        createButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = noteTitle.getText().toString();
-                String body = noteBody.getText().toString();
-                String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                if(!title.isEmpty() && !body.isEmpty()) {
-                    createNote(title, body, date, encodedPhoto, backgroundColor);
-                } else {
-                    Snackbar.make(v, "Fill empty fields", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
     }
 
     private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor) {
-        Toast.makeText(NewNote.this, "Saving Note...", Toast.LENGTH_LONG).show();
+        Toast.makeText(NewNote.this, "Saving Note...", Toast.LENGTH_SHORT).show();
         Map updateMap = new HashMap<String, String>();
         updateMap.put("title", title);
         updateMap.put("text", body);
@@ -293,9 +278,9 @@ public class NewNote extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.newnote_menu, menu);
         if(noteExists)
-            menu.getItem(2).setVisible(true);
+            menu.getItem(0).setVisible(true);
         else
-            menu.getItem(2).setVisible(false);
+            menu.getItem(0).setVisible(false);
         return true;
     }
 
@@ -309,6 +294,16 @@ public class NewNote extends AppCompatActivity {
                 notesDatabase.child(noteID).removeValue();
                 Toast.makeText(NewNote.this, "Note Deleted", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(NewNote.this, MainActivity.class));
+                break;
+            case R.id.menu_save_note:
+                String title = noteTitle.getText().toString();
+                String body = noteBody.getText().toString();
+                String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                if(!title.isEmpty() && !body.isEmpty()) {
+                    createNote(title, body, date, encodedPhoto, backgroundColor);
+                } else {
+                    Toast.makeText(NewNote.this, "Fill In Empty Fields", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.menu_color_note_yellow:
                 backgroundColor = "#fdfd96";

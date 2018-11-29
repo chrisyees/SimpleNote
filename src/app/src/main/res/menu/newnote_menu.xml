@@ -2,10 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/menu_delete_note"
+        android:icon="@drawable/ic_delete"
+        android:title="delete"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/menu_save_note"
+        android:icon="@drawable/ic_save"
+        android:title="save"
+        app:showAsAction="always" />
+
     <item android:id="@+id/menu_insert_photo"
         android:icon="@drawable/ic_insert_photo"
         android:title="insert_photo"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
 
     <item android:id="@+id/menu_color_note"
         android:icon="@drawable/ic_color_lens"
@@ -33,11 +43,7 @@
                 android:title="Blue"/>
             <item android:id="@+id/menu_color_note_purple"
                 android:icon="@drawable/ic_lens_purple"
-                android:title="Purple"/>
+                android:title="Purple" />
         </menu>
     </item>
-    <item android:id="@+id/menu_delete_note"
-        android:icon="@drawable/ic_delete"
-        android:title="delete"
-        app:showAsAction="always"/>
 </menu>

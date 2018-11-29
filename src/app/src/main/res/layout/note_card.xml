@@ -44,6 +44,7 @@
             android:paddingBottom="8dp"
             android:text="Note Body" />
 
+
     </LinearLayout>
 
 </android.support.v7.widget.CardView>
