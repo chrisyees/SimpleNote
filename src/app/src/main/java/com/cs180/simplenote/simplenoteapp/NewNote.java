@@ -216,7 +216,8 @@ public class NewNote extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
-                    newNoteBackground.setBackgroundColor(Color.parseColor(dataSnapshot.child(noteID).child("backgroundColor").getValue().toString()));
+                    backgroundColor = dataSnapshot.child(noteID).child("backgroundColor").getValue().toString();
+                    newNoteBackground.setBackgroundColor(Color.parseColor(backgroundColor));
                     String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
                     int spinnerPosition = adapter.getPosition(dataSnapshot.child(noteID).child("labelName").getValue().toString());
                     labelSelect.setSelection(spinnerPosition);
