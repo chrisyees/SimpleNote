@@ -45,12 +45,26 @@
 
     <Button
         android:id="@+id/sort_button"
-        android:layout_width="236dp"
-        android:layout_height="34dp"
-        android:layout_alignEnd="@+id/add_label"
+        android:layout_width="240dp"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="102dp"
-        android:layout_marginEnd="2dp"
-        android:text="Display" />
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="69dp"
+        android:layout_marginTop="164dp"
+        android:layout_marginEnd="75dp"
+        android:text="Sort By Label" />
+
+    <Button
+        android:id="@+id/delete_label_button"
+        android:layout_width="240dp"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="283dp"
+        android:layout_marginEnd="72dp"
+        android:text="Delete Label" />
 
 </RelativeLayout>

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -63,6 +65,10 @@ public class NewNote extends AppCompatActivity {
     private ImageView photoView;
     private ArrayAdapter<String> adapter;
 
+    //Spinner Variables
+    private DatabaseReference labelDatabase;
+    final List<String> labelList = new ArrayList<String>();
+
 
     private String previousLabel; //for spinner when editing note
 
@@ -83,6 +89,30 @@ public class NewNote extends AppCompatActivity {
         photoView = findViewById(R.id.imgView);
         newNoteBackground = findViewById(R.id.new_note_layout);
 
+        labelDatabase = FirebaseDatabase.getInstance().getReference().child("Labels").child(mAuth.getCurrentUser().getUid());
+
+        labelList.clear();
+
+        labelList.add("All");
+
+        ValueEventListener listener = labelDatabase.addValueEventListener(new ValueEventListener() { //get user labels from firebase
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren())
+                {
+                    if(!labelList.contains(ds.getValue(String.class))) { //prevent duplicate spinner value errors
+                        Log.d("firebaseAddLabel", "adding" + ds.getValue(String.class));
+                        labelList.add(ds.getValue(String.class));
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("Errors", "Error retrieving firebase label data");
+            }
+        });
+
         Toolbar newNoteToolbar = findViewById(R.id.newNoteToolbar);
         newNoteToolbar.setElevation(0);
         setSupportActionBar(newNoteToolbar);
@@ -96,8 +126,8 @@ public class NewNote extends AppCompatActivity {
         checkExisting();
 
         //Label Spinner Selection
-        List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels));
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Labels);
+        //List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels)); //get premade label list
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, labelList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         labelSelect.setAdapter(adapter);
         labelSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()  {
