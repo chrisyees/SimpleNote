@@ -188,14 +188,12 @@ public class NewNote extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isRecording){
-                    if (mStartPlaying) {
-                        startPlaying();
-                    } else {
-                        stopPlaying();
-                    }
-                    mStartPlaying = !mStartPlaying;
+                if (mStartPlaying) {
+                    startPlaying();
+                } else {
+                    stopPlaying();
                 }
+                mStartPlaying = !mStartPlaying;
             }
         });
 
@@ -276,6 +274,7 @@ public class NewNote extends AppCompatActivity {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                             isRecording = true;
+                            createButton.setVisibility(View.VISIBLE);
                             // Local temp file has been created
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -283,6 +282,7 @@ public class NewNote extends AppCompatActivity {
                         public void onFailure(@NonNull Exception exception) {
                             // Handle any errors
                             isRecording = false;
+                            createButton.setVisibility(View.GONE);
                         }
                     });
 
@@ -355,13 +355,19 @@ public class NewNote extends AppCompatActivity {
     }
 
     private void startPlaying() {
-        mPlayer = new MediaPlayer();
-        try {
-            mPlayer.setDataSource(audio.getPath());
-            mPlayer.prepare();
-            mPlayer.start();
-        } catch (IOException e) {
-            Toast.makeText(NewNote.this, "Voice Play Failed", Toast.LENGTH_LONG).show();        }
+        if(isRecording){
+            mPlayer = new MediaPlayer();
+            try {
+                mPlayer.setDataSource(audio.getPath());
+                mPlayer.prepare();
+                mPlayer.start();
+            } catch (IOException e) {
+                Toast.makeText(NewNote.this, "Voice Play Failed", Toast.LENGTH_LONG).show();        }
+        }
+        else {
+            Toast.makeText(NewNote.this, "No Recording", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     private void stopPlaying() {
@@ -394,6 +400,7 @@ public class NewNote extends AppCompatActivity {
         mRecorder.release();
         mRecorder = null;
         isRecording = true;
+        createButton.setVisibility(View.VISIBLE);
         audio = new File(mFileName).getAbsoluteFile();
         Toast.makeText(NewNote.this, "Recording Saved", Toast.LENGTH_SHORT).show();
     }
