@@ -12,6 +12,11 @@
         android:title="save"
         app:showAsAction="always" />
 
+    <item android:id="@+id/menu_insert_voice"
+        android:icon="@drawable/ic_mic"
+        android:title="insert_voice"
+        app:showAsAction="always" />
+
     <item android:id="@+id/menu_insert_photo"
         android:icon="@drawable/ic_insert_photo"
         android:title="insert_photo"

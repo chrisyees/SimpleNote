@@ -1,14 +1,19 @@
 package com.cs180.simplenote.simplenoteapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -30,6 +35,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -37,8 +44,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.text.SimpleDateFormat;
@@ -57,12 +68,22 @@ public class NewNote extends AppCompatActivity {
     private ConstraintLayout newNoteBackground;
     private FirebaseAuth mAuth;
     private DatabaseReference notesDatabase;
+    private StorageReference recordingsRef;
     private String noteID;
     private boolean noteExists;
     private String selectedLabel;
     private String encodedPhoto;
     private String backgroundColor;
     private ImageView photoView;
+    private static String mFileName = "empty";
+    //private RecordButton mRecordButton = null;
+    private MediaRecorder mRecorder = null;
+    public File audio = null;
+    //private PlayButton   mPlayButton = null;
+    private MediaPlayer mPlayer = null;
+    private boolean mStartRecording = true;
+    private boolean mStartPlaying = true;
+    private boolean isRecording = false;
     private ArrayAdapter<String> adapter;
 
     //Spinner Variables
@@ -74,6 +95,24 @@ public class NewNote extends AppCompatActivity {
 
     private final int PICK_IMAGE_REQUEST = 71;
 
+
+    // Requesting permission to RECORD_AUDIO
+    private boolean permissionToRecordAccepted = false;
+    private String [] permissions = {Manifest.permission.RECORD_AUDIO};
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                break;
+        }
+        if (!permissionToRecordAccepted ) finish();
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +120,7 @@ public class NewNote extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         notesDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
+        recordingsRef = FirebaseStorage.getInstance().getReference().child("recordings");
 
         createButton = findViewById(R.id.createNoteButton);
         noteTitle = findViewById(R.id.noteTitle);
@@ -94,6 +134,8 @@ public class NewNote extends AppCompatActivity {
         labelList.clear();
 
         labelList.add("All");
+
+        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         ValueEventListener listener = labelDatabase.addValueEventListener(new ValueEventListener() { //get user labels from firebase
             @Override
@@ -143,6 +185,20 @@ public class NewNote extends AppCompatActivity {
         });
 
 
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isRecording){
+                    if (mStartPlaying) {
+                        startPlaying();
+                    } else {
+                        stopPlaying();
+                    }
+                    mStartPlaying = !mStartPlaying;
+                }
+            }
+        });
+
         photoView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -152,7 +208,7 @@ public class NewNote extends AppCompatActivity {
         });
     }
 
-    private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor) {
+    private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor, final Uri voiceUri) {
         Toast.makeText(NewNote.this, "Saving Note...", Toast.LENGTH_SHORT).show();
         Map updateMap = new HashMap<String, String>();
         updateMap.put("title", title);
@@ -167,6 +223,9 @@ public class NewNote extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if(task.isSuccessful()) {
+                        if(voiceUri != null)
+                            recordingsRef.child(noteID).putFile(voiceUri);
+                        startActivity(new Intent(NewNote.this, MainActivity.class));
                         Toast.makeText(NewNote.this, "Note Saved", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(NewNote.this, MainActivity.class));
                     } else {
@@ -175,11 +234,13 @@ public class NewNote extends AppCompatActivity {
                 }
             });
         } else {
-            DatabaseReference newNoteRef = notesDatabase.push();
+            final DatabaseReference newNoteRef = notesDatabase.push();
             newNoteRef.setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()) {
+                        if(voiceUri != null)
+                            recordingsRef.child(newNoteRef.getKey()).putFile(voiceUri);
                         Toast.makeText(NewNote.this, "Note Saved", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(NewNote.this, MainActivity.class));
                     } else {
@@ -203,6 +264,28 @@ public class NewNote extends AppCompatActivity {
                     noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
                     backgroundColor = dataSnapshot.child(noteID).child("backgroundColor").getValue().toString();
                     newNoteBackground.setBackgroundColor(Color.parseColor(backgroundColor));
+
+                    StorageReference audioRef = recordingsRef.child(noteID);
+                    //File localFile = null;
+                    try {
+                        audio = File.createTempFile("Audio", "3gp");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    audioRef.getFile(audio).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            isRecording = true;
+                            // Local temp file has been created
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            // Handle any errors
+                            isRecording = false;
+                        }
+                    });
+
                     String temp = dataSnapshot.child(noteID).child("photoUri").getValue().toString();
                     int spinnerPosition = adapter.getPosition(dataSnapshot.child(noteID).child("labelName").getValue().toString());
                     labelSelect.setSelection(spinnerPosition);
@@ -269,8 +352,50 @@ public class NewNote extends AppCompatActivity {
                 encodedPhoto = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
             }
         }
+    }
 
+    private void startPlaying() {
+        mPlayer = new MediaPlayer();
+        try {
+            mPlayer.setDataSource(audio.getPath());
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            Toast.makeText(NewNote.this, "Voice Play Failed", Toast.LENGTH_LONG).show();        }
+    }
 
+    private void stopPlaying() {
+        mPlayer.release();
+        mPlayer = null;
+
+    }
+
+    private void startRecording() {
+        Toast.makeText(NewNote.this, "Recording...", Toast.LENGTH_LONG).show();
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        mFileName = getExternalCacheDir().getAbsolutePath();
+        mFileName += "/" + date + ".3gp";
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mRecorder.setOutputFile(mFileName);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        try {
+            mRecorder.prepare();
+        } catch (IOException e) {
+            Toast.makeText(NewNote.this, "Voice Record Failed", Toast.LENGTH_SHORT).show();
+        }
+        mRecorder.start();
+    }
+
+    private void stopRecording() {
+        mRecorder.stop();
+        mRecorder.release();
+        mRecorder = null;
+        isRecording = true;
+        audio = new File(mFileName).getAbsoluteFile();
+        Toast.makeText(NewNote.this, "Recording Saved", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -299,11 +424,24 @@ public class NewNote extends AppCompatActivity {
                 String title = noteTitle.getText().toString();
                 String body = noteBody.getText().toString();
                 String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                Uri uriAudio = null;
+                if(isRecording){
+                    uriAudio = Uri.fromFile(audio);
+                }
+
                 if(!title.isEmpty() && !body.isEmpty()) {
-                    createNote(title, body, date, encodedPhoto, backgroundColor);
+                    createNote(title, body, date, encodedPhoto, backgroundColor, uriAudio);
                 } else {
                     Toast.makeText(NewNote.this, "Fill In Empty Fields", Toast.LENGTH_SHORT).show();
                 }
+                break;
+            case R.id.menu_insert_voice:
+                if (mStartRecording) {
+                    startRecording();
+                } else {
+                    stopRecording();
+                }
+                mStartRecording = !mStartRecording;
                 break;
             case R.id.menu_color_note_yellow:
                 backgroundColor = "#fdfd96";
@@ -337,5 +475,19 @@ public class NewNote extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mRecorder != null) {
+            mRecorder.release();
+            mRecorder = null;
+        }
+
+        if (mPlayer != null) {
+            mPlayer.release();
+            mPlayer = null;
+        }
     }
 }

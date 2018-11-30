@@ -1,5 +1,7 @@
 package com.cs180.simplenote.simplenoteapp;
 
+import java.io.File;
+
 public class Notes {
 
     private String title;
@@ -8,19 +10,21 @@ public class Notes {
     private String labelName;
     private String photoUri;
     private String backgroundColor;
+    private File audio;
 
 
     public Notes(){
 
     }
 
-    public Notes(String title, String text, String date, String labelName, String photoUri, String backgroundColor) {
+    public Notes(String title, String text, String date, String labelName, String photoUri, String backgroundColor, File audio) {
         this.title = title;
         this.text = text;
         this.date = date;
         this.labelName = labelName;
         this.photoUri = photoUri;
         this.backgroundColor = backgroundColor;
+        this.audio = audio;
     }
 
     public String getTitle() {
@@ -43,6 +47,10 @@ public class Notes {
 
     public String getBackgroundColor() { return backgroundColor; }
 
+    public File getAudio() {
+        return audio;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -62,4 +70,8 @@ public class Notes {
     }
 
     public void setBackgroundColor(String backgroundColor) { this.backgroundColor = backgroundColor; }
+
+    public void setAudio(File audio) {
+        this.audio = audio;
+    }
 }
