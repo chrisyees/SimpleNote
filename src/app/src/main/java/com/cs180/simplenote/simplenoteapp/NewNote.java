@@ -423,6 +423,8 @@ public class NewNote extends AppCompatActivity {
                 selectPhoto();
                 break;
             case R.id.menu_delete_note:
+                if(isRecording)
+                    recordingsRef.child(noteID).delete();
                 notesDatabase.child(noteID).removeValue();
                 Toast.makeText(NewNote.this, "Note Deleted", Toast.LENGTH_LONG).show();
                 startActivity(new Intent(NewNote.this, MainActivity.class));

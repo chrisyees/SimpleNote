@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -47,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 // Get User Login info
-                String logInEmailText = logInEmail.getText().toString();
+                final String logInEmailText = logInEmail.getText().toString();
                 String logInPasswordText = logInPassword.getText().toString();
 
                 // Sign in with User email and password
@@ -73,6 +74,9 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        }
+        else {
+
         }
     }
 }
