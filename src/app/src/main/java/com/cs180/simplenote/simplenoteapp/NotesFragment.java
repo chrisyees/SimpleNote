@@ -54,14 +54,9 @@ public class NotesFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
 
-
+        displayLabel = "All";
         labelArgs = getArguments();
-        if(labelArgs == null)
-        {
-            displayLabel = "All"; //avoid null error
-        }
-        else
-        {
+        if(labelArgs != null) {
             displayLabel = getArguments().getString("label"); //get item passed in by label fragment
         }
 
@@ -86,6 +81,7 @@ public class NotesFragment extends Fragment {
                 }
                 else {
                     holder.setVisibility(View.GONE);
+                    //notifyDataSetChanged();
                 }
                     holder.setTextTitle(model.getTitle());
                     holder.setTextBody(model.getText());

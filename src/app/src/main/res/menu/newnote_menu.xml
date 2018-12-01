@@ -12,6 +12,11 @@
         android:title="save"
         app:showAsAction="always" />
 
+    <item android:id="@+id/menu_share_note"
+        android:icon="@drawable/ic_share"
+        android:title="share"
+        app:showAsAction="always" />
+
     <item android:id="@+id/menu_insert_voice"
         android:icon="@drawable/ic_mic"
         android:title="insert_voice"
