@@ -96,6 +96,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <LinearLayout
+                android:id="@+id/todo_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"></LinearLayout>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/add_list_item_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="16dp"
+                android:background="@drawable/button_style"
+                app:backgroundTint="@color/pastelYellow"
+                android:tint="#000000"
+                android:src="@drawable/ic_add" />
+
         </LinearLayout>
     </ScrollView>
 

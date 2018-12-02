@@ -13,12 +13,15 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.Map;
+
 public class NoteRecycleView extends RecyclerView.ViewHolder {
     View mView;
     TextView textTitle, textBody;
     ImageView noteImg;
     CardView noteCard;
     LinearLayout linLayout;
+    LinearLayout listLayout;
 
     public NoteRecycleView(@NonNull View itemView) {
         super(itemView);
@@ -28,6 +31,7 @@ public class NoteRecycleView extends RecyclerView.ViewHolder {
         noteImg = mView.findViewById(R.id.imageViewCard);
         noteCard = mView.findViewById(R.id.note_cardview);
         linLayout = mView.findViewById(R.id.card_linear_layout);
+        listLayout = mView.findViewById(R.id.listDisplay);
     }
 
     public void setTextTitle(String textTitle) {
@@ -54,6 +58,16 @@ public class NoteRecycleView extends RecyclerView.ViewHolder {
         noteCard.setCardBackgroundColor(Color.parseColor(color));
     }
 
+    public void addListItem(View listItem)
+    {
+        listLayout.addView(listItem);
+    }
+
+    public void clearList()
+    {
+        listLayout.removeAllViews();
+    }
+
     public void setVisibility(int visibility) {
         mView.setVisibility(visibility);
         textTitle.setVisibility(visibility);
@@ -62,6 +76,11 @@ public class NoteRecycleView extends RecyclerView.ViewHolder {
         noteImg.setVisibility(visibility);
         noteCard.setVisibility(visibility);
         linLayout.setVisibility(visibility);
+        listLayout.setVisibility(visibility);
+    }
+
+    public void setListVisibility(int visibility) {
+        textBody.setVisibility(visibility);
     }
 }
 

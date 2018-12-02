@@ -1,6 +1,7 @@
 package com.cs180.simplenote.simplenoteapp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +30,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -57,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -90,6 +95,15 @@ public class NewNote extends AppCompatActivity {
     private DatabaseReference labelDatabase;
     final List<String> labelList = new ArrayList<String>();
 
+    //List Variables
+    private DatabaseReference listDatabase;
+    private boolean isAList;
+    private LinearLayout listLayout;
+    private FloatingActionButton addListItem;
+    private List<ToDoList> listItems= new ArrayList<ToDoList>();
+    private List<EditText> listBodies= new ArrayList<EditText>();
+    private List <CheckBox> listChecks= new ArrayList<CheckBox>();
+    private List <View> listViews= new ArrayList<View>();
 
     private String previousLabel; //for spinner when editing note
 
@@ -128,12 +142,16 @@ public class NewNote extends AppCompatActivity {
         labelSelect = findViewById(R.id.label_select);
         photoView = findViewById(R.id.imgView);
         newNoteBackground = findViewById(R.id.new_note_layout);
+        listLayout = findViewById(R.id.todo_list);
+        addListItem = findViewById(R.id.add_list_item_button);
 
         labelDatabase = FirebaseDatabase.getInstance().getReference().child("Labels").child(mAuth.getCurrentUser().getUid());
 
         labelList.clear();
 
         labelList.add("All");
+
+        listDatabase = notesDatabase.child("List");
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
@@ -166,6 +184,20 @@ public class NewNote extends AppCompatActivity {
         backgroundColor = "#ffffff";
 
         checkExisting();
+        isList();
+
+        if(isAList) {
+            Log.d("nope" ,"nope");
+            noteBody.setVisibility(View.GONE);
+            listLayout.setVisibility(View.VISIBLE);
+            addListItem.show();
+        }
+        else {
+            Log.d("nope" ,"weee");
+            noteBody.setVisibility(View.VISIBLE);
+            listLayout.setVisibility(View.GONE);
+            addListItem.hide();
+        }
 
         //Label Spinner Selection
         //List<String> Labels = Arrays.asList(getResources().getStringArray(R.array.Labels)); //get premade label list
@@ -173,15 +205,15 @@ public class NewNote extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         labelSelect.setAdapter(adapter);
         labelSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()  {
-                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
-                {
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
+            {
                 selectedLabel =  parent.getItemAtPosition(pos).toString();
-                }
+            }
 
-                public void onNothingSelected(AdapterView<?> parent)
-                {
-                    //nothing
-                }
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+                //nothing
+            }
         });
 
 
@@ -204,9 +236,53 @@ public class NewNote extends AppCompatActivity {
                 return false;
             }
         });
+
+        addListItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+               // setContentView(R.layout.list_card);
+
+                LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                View listView = vi.inflate(R.layout.list_card, null);
+
+
+                EditText listBody = (EditText) listView.findViewById(R.id.listEntry);
+                CheckBox isDone = (CheckBox) listView.findViewById(R.id.checkBox);
+
+                listBody.setHint("List Item");
+
+                if(listBody == null)
+                {
+                    Log.d("nullvalue", "null");
+                }
+                else
+                {
+                    Log.d("nullvalue", "notnull");
+                }
+
+                //listBody.setText(" ");
+                isDone.setChecked(false);
+
+                listBodies.add(listBody);
+                listChecks.add(isDone);
+
+                //listBodies.add((EditText) listView.findViewById(R.id.listEntry));
+                //listChecks.add((CheckBox) listView.findViewById(R.id.checkBox));
+                //listViews.add(listView);
+
+                //EditText mAdapter = (EditText) listView.getChildAt(0);
+
+                listLayout.addView(listView);
+                //listViews.add(listLayout.getChildAt(0));
+                //int count = listLayout.getChildCount() - 1;
+
+            }
+        });
     }
 
     private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor, final Uri voiceUri) {
+
         Toast.makeText(NewNote.this, "Saving Note...", Toast.LENGTH_SHORT).show();
         Map updateMap = new HashMap<String, String>();
         updateMap.put("title", title);
@@ -225,12 +301,30 @@ public class NewNote extends AppCompatActivity {
                             recordingsRef.child(noteID).putFile(voiceUri);
                         startActivity(new Intent(NewNote.this, MainActivity.class));
                         Toast.makeText(NewNote.this, "Note Saved", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(NewNote.this, MainActivity.class));
                     } else {
                         Toast.makeText(NewNote.this, "Note Failed To Save", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+            if(isAList) {
+                notesDatabase.child(noteID).child("Lists").removeValue();
+                for(int i = 0; i < listBodies.size(); i++) {
+                    String bodyText = listBodies.get(i).getText().toString();
+                    Boolean checkText = listChecks.get(i).isChecked();
+
+
+                    String fTemp = "false";
+                    if (checkText) {
+                        fTemp = "true";
+                    } else {
+                        fTemp = "false";
+                    }
+                    Map listMap = new HashMap<String, String>();
+                    listMap.put("body", bodyText);
+                    listMap.put("isDone", fTemp);
+                    notesDatabase.child(noteID).child("Lists").push().setValue(listMap);
+                }
+            }
         } else {
             final DatabaseReference newNoteRef = notesDatabase.push();
             newNoteRef.setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -240,18 +334,39 @@ public class NewNote extends AppCompatActivity {
                         if(voiceUri != null)
                             recordingsRef.child(newNoteRef.getKey()).putFile(voiceUri);
                         Toast.makeText(NewNote.this, "Note Saved", Toast.LENGTH_SHORT).show();
+                        if(isAList)
+                        {
+                            for(int i = 0; i < listBodies.size(); i++) {
+                                String bodyText = listBodies.get(i).getText().toString();
+                                Boolean checkText = listChecks.get(i).isChecked();
+
+
+                                String fTemp = "false";
+                                if (checkText) {
+                                    fTemp = "true";
+                                } else {
+                                    fTemp = "false";
+                                }
+                                Map listMap = new HashMap<String, String>();
+                                listMap.put("body" , bodyText);
+                                listMap.put("isDone",fTemp);
+                                notesDatabase.child(newNoteRef.getKey()).child("Lists").push().setValue(listMap);
+                            }
+                        }
                         startActivity(new Intent(NewNote.this, MainActivity.class));
                     } else {
                         Toast.makeText(NewNote.this, "Note Failed To Save", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
+
         }
     }
 
     protected void checkExisting () {
+
         Bundle extras = getIntent().getExtras();
-        if(extras !=null) {
+        if(extras.getString("cNoteID") != null) {
             //Toast.makeText(NewNote.this, "THIS IS AN EXISTING NOTE", Toast.LENGTH_SHORT).show();
             noteID = extras.getString("cNoteID");
 
@@ -259,7 +374,15 @@ public class NewNote extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     noteTitle.setText(dataSnapshot.child(noteID).child("title").getValue().toString());
-                    noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
+
+                        noteBody.setText(dataSnapshot.child(noteID).child("text").getValue().toString());
+                        if(noteBody.getText().toString().equals("List here!")) {
+                            isAList = true;
+                                Log.d("nope" ,"nope");
+                                noteBody.setVisibility(View.GONE);
+                                listLayout.setVisibility(View.VISIBLE);
+                                addListItem.show();
+                        }
                     backgroundColor = dataSnapshot.child(noteID).child("backgroundColor").getValue().toString();
                     newNoteBackground.setBackgroundColor(Color.parseColor(backgroundColor));
 
@@ -299,11 +422,50 @@ public class NewNote extends AppCompatActivity {
                     else {
                         photoView.setVisibility(View.GONE);
                     }
+                    notesDatabase.removeEventListener(this); //stop listener
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     Toast.makeText(NewNote.this, "Note Read Failed", Toast.LENGTH_LONG).show();
+                }
+                //notesDatabase.removeEventListener(this); //stop listener
+            });
+            notesDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (isAList) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.child(noteID).child("Lists").getChildren()) {
+                            String body = postSnapshot.child("body").getValue().toString();
+                            String check = postSnapshot.child("isDone").getValue().toString();
+                            Boolean boolCheck = false;
+                            if (check.equals("true")) {
+                                boolCheck = true;
+                            }
+                            ToDoList item = new ToDoList(boolCheck, body);
+                            listItems.add(item);
+                        }
+                        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                        for (int i = 0; i < listItems.size(); i++) { //loop through adding list cards and setting their values
+                            View listView = vi.inflate(R.layout.list_card, null);
+                            EditText listBody = (EditText) listView.findViewById(R.id.listEntry);
+                            CheckBox isDone = (CheckBox) listView.findViewById(R.id.checkBox);
+
+                            listBody.setText(listItems.get(i).getText());
+                            isDone.setChecked(listItems.get(i).getChecked());
+
+                            listLayout.addView(listView);
+
+                            listBodies.add(listBody);
+                            listChecks.add(isDone);
+                        }
+                        notesDatabase.removeEventListener(this); //stop listener
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(NewNote.this, "Note List Failed", Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -312,6 +474,26 @@ public class NewNote extends AppCompatActivity {
             //Toast.makeText(NewNote.this, "THIS IS A NEW NOTE", Toast.LENGTH_SHORT).show();
             noteExists = false;
         }
+    }
+
+    protected void isList(){
+        Bundle extras = getIntent().getExtras();
+        String check = extras.getString("ListCheck");
+        if(check == null) {
+            check = "notList";
+        }
+            Log.d("testinghere", noteBody.getText().toString());
+            if(check.equals("isList") || noteBody.getText().toString().equals("List here!"))
+            {
+                isAList = true;
+            }
+            else if(check.equals("notList"))
+            {
+                isAList = false;
+            }
+            else{
+                isAList = false;
+            }
     }
 
     protected void selectPhoto(){
@@ -437,7 +619,10 @@ public class NewNote extends AppCompatActivity {
                 if(isRecording){
                     uriAudio = Uri.fromFile(audio);
                 }
-
+                if(isAList)
+                {
+                    body = "List here!";
+                }
                 if(!title.isEmpty() && !body.isEmpty()) {
                     createNote(title, body, date, encodedPhoto, backgroundColor, uriAudio);
                 } else {

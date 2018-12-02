@@ -44,6 +44,13 @@
             android:paddingBottom="8dp"
             android:text="Note Body" />
 
+        <LinearLayout
+            android:id="@+id/listDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:orientation="vertical"></LinearLayout>
+
 
     </LinearLayout>
 
