@@ -215,10 +215,7 @@ public class LabelsFragment extends Fragment {
                 bundle.putString("label", selectedLabel); //store the item in the spinner to send over
                 nFrag.setArguments(bundle);
 
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, nFrag)
-                        .addToBackStack(null)
-                        .commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, nFrag).commit();
             }
         });
     }

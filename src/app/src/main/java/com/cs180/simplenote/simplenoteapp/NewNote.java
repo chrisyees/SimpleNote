@@ -221,8 +221,10 @@ public class NewNote extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mStartPlaying) {
+                    //createButton.setText("Stop");
                     startPlaying();
                 } else {
+                    createButton.setText("Play");
                     stopPlaying();
                 }
                 mStartPlaying = !mStartPlaying;
@@ -233,6 +235,7 @@ public class NewNote extends AppCompatActivity {
             @Override
             public boolean onLongClick(View v) {
                 deletePhoto();
+                Toast.makeText(NewNote.this, "Image Deleted", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -509,6 +512,15 @@ public class NewNote extends AppCompatActivity {
         photoView.setVisibility(View.GONE);
     }
 
+    protected void shareNote(){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, noteTitle.getText().toString());
+        sendIntent.putExtra(Intent.EXTRA_TEXT, noteBody.getText().toString());
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -631,11 +643,19 @@ public class NewNote extends AppCompatActivity {
                 break;
             case R.id.menu_insert_voice:
                 if (mStartRecording) {
+                    item.setIcon(R.drawable.ic_stop);
                     startRecording();
                 } else {
+                    item.setIcon(R.drawable.ic_mic);
                     stopRecording();
                 }
                 mStartRecording = !mStartRecording;
+                break;
+            case R.id.menu_share_note:
+                if(noteExists)
+                    shareNote();
+                else
+                    Toast.makeText(NewNote.this, "Save Note First", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.menu_color_note_yellow:
                 backgroundColor = "#fdfd96";

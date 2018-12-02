@@ -70,6 +70,8 @@ public class NoteRecycleView extends RecyclerView.ViewHolder {
 
     public void setVisibility(int visibility) {
         mView.setVisibility(visibility);
+        if(visibility == View.GONE)
+            mView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         textTitle.setVisibility(visibility);
         textBody.setVisibility(visibility);
         noteImg.setVisibility(visibility);

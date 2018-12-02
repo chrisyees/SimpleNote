@@ -59,8 +59,9 @@ public class NotesFragment extends Fragment {
         //notesDatabase = FirebaseDatabase.getInstance().getReference().child("Notes").child(mAuth.getCurrentUser().getUid());
        // listLayout = view.findViewById(R.id.listDisplay);
 
-
+        displayLabel = "All";
         labelArgs = getArguments();
+
         if(labelArgs == null)
         {
             displayLabel = "All"; //avoid null error, default
@@ -92,6 +93,7 @@ public class NotesFragment extends Fragment {
                 }
                 else {
                     holder.setVisibility(View.GONE);
+                    //notifyDataSetChanged();
                 }
                 if(model.getText().equals("List here!"))
                 {
