@@ -10,6 +10,7 @@ public class Notes {
     private String labelName;
     private String photoUri;
     private String backgroundColor;
+    private String reminder;
     private File audio;
 
 
@@ -17,12 +18,13 @@ public class Notes {
 
     }
 
-    public Notes(String title, String text, String date, String labelName, String photoUri, String backgroundColor, File audio) {
+    public Notes(String title, String text, String date, String labelName, String photoUri, String backgroundColor, File audio, String reminder) {
         this.title = title;
         this.text = text;
         this.date = date;
         this.labelName = labelName;
         this.photoUri = photoUri;
+        this.reminder = reminder;
         this.backgroundColor = backgroundColor;
         this.audio = audio;
     }
@@ -46,6 +48,8 @@ public class Notes {
     public String getPhotoUri() { return photoUri; }
 
     public String getBackgroundColor() { return backgroundColor; }
+
+    public String getReminder() { return reminder;}
 
     public File getAudio() {
         return audio;

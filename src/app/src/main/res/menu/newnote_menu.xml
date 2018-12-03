@@ -22,6 +22,12 @@
         android:title="insert_voice"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/menu_pick_time"
+        android:icon="@drawable/ic_event_note"
+        android:title="pick_time"
+        app:showAsAction="always" />
+
     <item android:id="@+id/menu_insert_photo"
         android:icon="@drawable/ic_insert_photo"
         android:title="insert_photo"

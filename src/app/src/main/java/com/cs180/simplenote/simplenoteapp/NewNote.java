@@ -2,6 +2,9 @@ package com.cs180.simplenote.simplenoteapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -59,6 +62,7 @@ import java.sql.DatabaseMetaData;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -79,6 +83,7 @@ public class NewNote extends AppCompatActivity {
     private String selectedLabel;
     private String encodedPhoto;
     private String backgroundColor;
+    private String reminderTime;
     private ImageView photoView;
     private static String mFileName = "empty";
     //private RecordButton mRecordButton = null;
@@ -108,6 +113,7 @@ public class NewNote extends AppCompatActivity {
     private String previousLabel; //for spinner when editing note
 
     private final int PICK_IMAGE_REQUEST = 71;
+    private final int PICK_TIME_REQUEST = 28;
 
 
     // Requesting permission to RECORD_AUDIO
@@ -181,6 +187,7 @@ public class NewNote extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         encodedPhoto = "empty";
+        reminderTime = "empty";
         backgroundColor = "#ffffff";
 
         checkExisting();
@@ -284,7 +291,7 @@ public class NewNote extends AppCompatActivity {
         });
     }
 
-    private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor, final Uri voiceUri) {
+    private void createNote(String title, String body, String date, String encodedPhoto, String backgroundColor, final Uri voiceUri, String reminderDate) {
 
         Toast.makeText(NewNote.this, "Saving Note...", Toast.LENGTH_SHORT).show();
         Map updateMap = new HashMap<String, String>();
@@ -294,6 +301,7 @@ public class NewNote extends AppCompatActivity {
         updateMap.put("date", date);
         updateMap.put("photoUri", encodedPhoto);
         updateMap.put("backgroundColor", backgroundColor);
+        updateMap.put("reminder", reminderDate);
 
         if (noteExists) {
             notesDatabase.child(noteID).updateChildren(updateMap).addOnCompleteListener(new OnCompleteListener() {
@@ -425,6 +433,10 @@ public class NewNote extends AppCompatActivity {
                     else {
                         photoView.setVisibility(View.GONE);
                     }
+
+                    reminderTime = dataSnapshot.child(noteID).child("reminder").getValue().toString();
+                    setReminder(reminderTime, dataSnapshot.child(noteID).child("title").getValue().toString());
+
                     notesDatabase.removeEventListener(this); //stop listener
                 }
 
@@ -512,6 +524,52 @@ public class NewNote extends AppCompatActivity {
         photoView.setVisibility(View.GONE);
     }
 
+    protected void selectReminderTime(){
+        Intent i = new Intent(this, PickTime.class);
+        startActivityForResult(i, PICK_TIME_REQUEST);
+    }
+
+    protected void setReminder(String data, String noteTitle)
+    {
+        if(!data.equals("empty"))
+        {
+            String[] alarmValues = data.split(" ");
+            Intent i = new Intent(this, ReminderReceiver.class);
+            Date date = new Date();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("title", noteTitle);
+            i.putExtras(bundle);
+            i.setAction("foo");
+
+
+            AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 100, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            Calendar calender = Calendar.getInstance();
+            Calendar present = Calendar.getInstance();
+
+            present.setTime(date);
+            calender.setTime(date);
+
+            calender.set(Calendar.MONTH, Integer.parseInt(alarmValues[0]));
+            calender.set(Calendar.DAY_OF_MONTH, Integer.parseInt(alarmValues[1]));
+            calender.set(Calendar.YEAR, Integer.parseInt(alarmValues[2]));
+            calender.set(Calendar.HOUR_OF_DAY, Integer.parseInt(alarmValues[3]));
+            calender.set(Calendar.MINUTE, Integer.parseInt(alarmValues[4]));
+            calender.set(Calendar.SECOND, 1);
+
+            if (calender.before(present))
+            {
+                Toast.makeText(this, "Time for reminder is invalid!", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
+            }
+        }
+
+    }
+
     protected void shareNote(){
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
@@ -545,6 +603,34 @@ public class NewNote extends AppCompatActivity {
                 imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
                 encodedPhoto = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
             }
+        }
+        if (requestCode == PICK_TIME_REQUEST && resultCode == RESULT_OK)
+        {
+            String[] alarmValues = data.getStringExtra("timePicked").split(" ");
+            Date date = new Date();
+            Calendar calender = Calendar.getInstance();
+            Calendar present = Calendar.getInstance();
+
+            present.setTime(date);
+            calender.setTime(date);
+
+            calender.set(Calendar.MONTH, Integer.parseInt(alarmValues[0]));
+            calender.set(Calendar.DAY_OF_MONTH, Integer.parseInt(alarmValues[1]));
+            calender.set(Calendar.YEAR, Integer.parseInt(alarmValues[2]));
+            calender.set(Calendar.HOUR_OF_DAY, Integer.parseInt(alarmValues[3]));
+            calender.set(Calendar.MINUTE, Integer.parseInt(alarmValues[4]));
+            calender.set(Calendar.SECOND, 0);
+
+            if(calender.before(present)){
+                Toast.makeText(this, "Time for reminder is invalid!", Toast.LENGTH_SHORT).show();
+
+            }
+
+            else
+            {
+                reminderTime = data.getStringExtra("timePicked");
+            }
+
         }
     }
 
@@ -616,6 +702,9 @@ public class NewNote extends AppCompatActivity {
             case R.id.menu_insert_photo:
                 selectPhoto();
                 break;
+            case R.id.menu_pick_time:
+                selectReminderTime();
+                break;
             case R.id.menu_delete_note:
                 if(isRecording)
                     recordingsRef.child(noteID).delete();
@@ -636,7 +725,8 @@ public class NewNote extends AppCompatActivity {
                     body = "List here!";
                 }
                 if(!title.isEmpty() && !body.isEmpty()) {
-                    createNote(title, body, date, encodedPhoto, backgroundColor, uriAudio);
+                    createNote(title, body, date, encodedPhoto, backgroundColor, uriAudio, reminderTime);
+                    setReminder(reminderTime, title);
                 } else {
                     Toast.makeText(NewNote.this, "Fill In Empty Fields", Toast.LENGTH_SHORT).show();
                 }
