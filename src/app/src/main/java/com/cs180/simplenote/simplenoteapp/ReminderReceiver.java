@@ -23,7 +23,7 @@ public class ReminderReceiver extends BroadcastReceiver {
     {
         Bundle bundle = intent.getExtras();
         String noteTitle = bundle.getString("title");
-        //Toast.makeText(context, "Title: " + noteTitle, Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Title: " + noteTitle, Toast.LENGTH_LONG).show();
 
         NotificationManager notifManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
